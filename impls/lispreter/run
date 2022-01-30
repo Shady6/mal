@@ -1,0 +1,2 @@
+#!/bin/bash
+exec python -O $(dirname $0)/${STEP:-stepA_mal}.py "${@}"
