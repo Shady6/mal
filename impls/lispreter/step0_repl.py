@@ -11,7 +11,6 @@ def rep(x):
     _print(eval(read(x)))
     
 
-
 if __name__ == '__main__':
     while True:
         inp = input("user> ")
