@@ -25,7 +25,7 @@ if __name__ == '__main__':
     isDebug = True if '-d' in [x[0] for x in opts] else False
 
     if isDebug:
-        inp = '(+ 1 2)'
+        inp = '( + 2 (* 3 4) ) '
         rep(inp)
 
     else:

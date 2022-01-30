@@ -12,12 +12,15 @@ RE_IMPL = re.compile(r'^impls/(?!lib|tests)([^/]*)/')
 
 OVERRIDE_IMPLS = os.environ.get('OVERRIDE_IMPLS', '').split()
 
+
 def impl_text(impl):
     s = "IMPL=%s" % impl['IMPL']
     for k, v in impl.items():
-        if k == 'IMPL': continue
+        if k == 'IMPL':
+            continue
         s += " %s=%s" % (k, v)
     return s
+
 
 all_changes = sys.argv[1:]
 # code changes that are not just to docs
@@ -60,7 +63,7 @@ for impl in all_impls['IMPL']:
     elif do_full:
         targ.append(impl_text(impl))
 
-print("::set-output name=do-linux::%s" % json.dumps(len(linux_impls)>0))
-print("::set-output name=do-macos::%s" % json.dumps(len(macos_impls)>0))
+print("::set-output name=do-linux::%s" % json.dumps(len(linux_impls) > 0))
+print("::set-output name=do-macos::%s" % json.dumps(len(macos_impls) > 0))
 print("::set-output name=linux::{\"IMPL\":%s}" % json.dumps(linux_impls))
 print("::set-output name=macos::{\"IMPL\":%s}" % json.dumps(macos_impls))

@@ -1,18 +1,21 @@
-def pr_str(tree):
+def pr_str(element):
+    if type(element).__name__ == 'list':
+        return pr_list(element)
+    else:
+        return pr_atom(element)
+
+
+def pr_atom(atom):
+    parsedAtom = next((key for key in keywords_map.keys()
+                       if keywords_map[key] is atom), None)
+    return parsedAtom if parsedAtom else str(atom)
+
+
+def pr_list(list):
     result = '('
-
-    for i, x in enumerate(tree):
-        if type(x) == 'list':
-            result += pr_str(x) + ' '
-
-        elif len([v for v in keywords_map.values() if x is v]) == 1:
-            result += next(k for k in keywords_map.keys()
-                           if keywords_map[k] == x) + ' '
-        else:
-            result += str(x)
-            if i < len(tree) - 1:
-                result += ' '
-
+    for i, x in enumerate(list):
+        result += pr_str(x) + \
+            (' ' if i < len(list) - 1 else '')
     return result + ')'
 
 

@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os, sys, re
-import argparse, time
-import signal, atexit
+import os
+import sys
+import re
+import argparse
+import time
+import signal
+import atexit
 
 from subprocess import Popen, STDOUT, PIPE
 from select import select
 
 # Pseudo-TTY and terminal manipulation
-import pty, array, fcntl, termios
+import pty
+import array
+import fcntl
+import termios
 
 IS_PY_3 = sys.version_info[0] == 3
 
 debug_file = None
 log_file = None
 
+
 def debug(data):
     if debug_file:
         debug_file.write(data)
         debug_file.flush()
+
 
 def log(data, end='\n'):
     if log_file:
@@ -28,51 +37,53 @@ def log(data, end='\n'):
     print(data, end=end)
     sys.stdout.flush()
 
+
 sep = "\n"
 rundir = None
 
 parser = argparse.ArgumentParser(
-        description="Run a test file against a Mal implementation")
+    description="Run a test file against a Mal implementation")
 parser.add_argument('--rundir',
-        help="change to the directory before running tests")
+                    help="change to the directory before running tests")
 parser.add_argument('--start-timeout', default=10, type=int,
-        help="default timeout for initial prompt")
+                    help="default timeout for initial prompt")
 parser.add_argument('--test-timeout', default=20, type=int,
-        help="default timeout for each individual test action")
+                    help="default timeout for each individual test action")
 parser.add_argument('--pre-eval', default=None, type=str,
-        help="Mal code to evaluate prior to running the test")
+                    help="Mal code to evaluate prior to running the test")
 parser.add_argument('--no-pty', action='store_true',
-        help="Use direct pipes instead of pseudo-tty")
+                    help="Use direct pipes instead of pseudo-tty")
 parser.add_argument('--log-file', type=str,
-        help="Write messages to the named file in addition the screen")
+                    help="Write messages to the named file in addition the screen")
 parser.add_argument('--debug-file', type=str,
-        help="Write all test interaction the named file")
+                    help="Write all test interaction the named file")
 parser.add_argument('--hard', action='store_true',
-        help="Turn soft tests (soft, deferrable, optional) into hard failures")
+                    help="Turn soft tests (soft, deferrable, optional) into hard failures")
 
 # Control whether deferrable and optional tests are executed
 parser.add_argument('--deferrable', dest='deferrable', action='store_true',
-        help="Enable deferrable tests that follow a ';>>> deferrable=True'")
+                    help="Enable deferrable tests that follow a ';>>> deferrable=True'")
 parser.add_argument('--no-deferrable', dest='deferrable', action='store_false',
-        help="Disable deferrable tests that follow a ';>>> deferrable=True'")
+                    help="Disable deferrable tests that follow a ';>>> deferrable=True'")
 parser.set_defaults(deferrable=True)
 parser.add_argument('--optional', dest='optional', action='store_true',
-        help="Enable optional tests that follow a ';>>> optional=True'")
+                    help="Enable optional tests that follow a ';>>> optional=True'")
 parser.add_argument('--no-optional', dest='optional', action='store_false',
-        help="Disable optional tests that follow a ';>>> optional=True'")
+                    help="Disable optional tests that follow a ';>>> optional=True'")
 parser.set_defaults(optional=True)
 
 parser.add_argument('test_file', type=str,
-        help="a test file formatted as with mal test data")
+                    help="a test file formatted as with mal test data")
 parser.add_argument('mal_cmd', nargs="*",
-        help="Mal implementation command line. Use '--' to "
-             "specify a Mal command line with dashed options.")
+                    help="Mal implementation command line. Use '--' to "
+                    "specify a Mal command line with dashed options.")
 parser.add_argument('--crlf', dest='crlf', action='store_true',
-        help="Write \\r\\n instead of \\n to the input")
+                    help="Write \\r\\n instead of \\n to the input")
+
 
 class Runner():
     def __init__(self, args, no_pty=False, line_break="\n"):
-        #print "args: %s" % repr(args)
+        # print "args: %s" % repr(args)
         self.no_pty = no_pty
 
         # Cleanup child process on exit
@@ -110,7 +121,7 @@ class Runner():
             self.stdin = os.fdopen(master, 'r+b', 0)
             self.stdout = self.stdin
 
-        #print "started"
+        # print "started"
         self.buf = ""
         self.last_prompt = ""
 
@@ -119,7 +130,7 @@ class Runner():
     def read_to_prompt(self, prompts, timeout):
         end_time = time.time() + timeout
         while time.time() < end_time:
-            [outs,_,_] = select([self.stdout], [], [], 1)
+            [outs, _, _] = select([self.stdout], [], [], 1)
             if self.stdout in outs:
                 new_data = self.stdout.read(1)
                 new_data = new_data.decode("utf-8") if IS_PY_3 else new_data
@@ -142,16 +153,18 @@ class Runner():
         def _to_bytes(s):
             return bytes(s, "utf-8") if IS_PY_3 else s
 
-        self.stdin.write(_to_bytes(str.replace('\r', '\x16\r') + self.line_break))
+        self.stdin.write(_to_bytes(str.replace(
+            '\r', '\x16\r') + self.line_break))
 
     def cleanup(self):
-        #print "cleaning up"
+        # print "cleaning up"
         if self.p:
             try:
                 os.killpg(self.p.pid, signal.SIGTERM)
             except OSError:
                 pass
             self.p = None
+
 
 class TestReader:
     def __init__(self, test_file):
@@ -191,7 +204,8 @@ class TestReader:
                     return True
                 continue
             elif line[0:1] == ";":         # unexpected comment
-                raise Exception("Test data error at line %d:\n%s" % (self.line_num, line))
+                raise Exception("Test data error at line %d:\n%s" %
+                                (self.line_num, line))
             self.form = line   # the line is a form to send
 
             # Now find the output and return value
@@ -209,7 +223,8 @@ class TestReader:
                 else:
                     self.ret = ""
                     break
-            if self.ret != None: break
+            if self.ret != None:
+                break
 
         if self.out[-1:] == sep and not self.ret:
             # If there is no return value, output should not end in
@@ -217,17 +232,22 @@ class TestReader:
             self.out = self.out[0:-1]
         return self.form
 
+
 args = parser.parse_args(sys.argv[1:])
 # Workaround argparse issue with two '--' on command line
 if sys.argv.count('--') > 0:
     args.mal_cmd = sys.argv[sys.argv.index('--')+1:]
 
-if args.rundir: os.chdir(args.rundir)
+if args.rundir:
+    os.chdir(args.rundir)
 
-if args.log_file:   log_file   = open(args.log_file, "a")
-if args.debug_file: debug_file = open(args.debug_file, "a")
+if args.log_file:
+    log_file = open(args.log_file, "a")
+if args.debug_file:
+    debug_file = open(args.debug_file, "a")
 
-r = Runner(args.mal_cmd, no_pty=args.no_pty, line_break="\r\n" if args.crlf else "\n")
+r = Runner(args.mal_cmd, no_pty=args.no_pty,
+           line_break="\r\n" if args.crlf else "\n")
 t = TestReader(args.test_file)
 
 
@@ -264,8 +284,10 @@ fail_cnt = 0
 soft_fail_cnt = 0
 failures = []
 
+
 class TestTimeout(Exception):
     pass
+
 
 while t.next():
     if args.deferrable == False and t.deferrable:
@@ -280,7 +302,8 @@ while t.next():
         log(t.msg)
         continue
 
-    if t.form == None: continue
+    if t.form == None:
+        continue
 
     log("TEST: %s -> [%s,%s]" % (repr(t.form), repr(t.out), t.ret), end='')
 
@@ -294,8 +317,8 @@ while t.next():
     try:
         test_cnt += 1
         res = r.read_to_prompt(['\r\n[^\s()<>]+> ', '\n[^\s()<>]+> '],
-                                timeout=args.test_timeout)
-        #print "%s,%s,%s" % (idx, repr(p.before), repr(p.after))
+                               timeout=args.test_timeout)
+        # print "%s,%s,%s" % (idx, repr(p.before), repr(p.after))
         if (res == None):
             log(" -> TIMEOUT (line %d)" % t.line_num)
             raise TestTimeout("TIMEOUT (line %d)" % t.line_num)
@@ -340,10 +363,10 @@ TEST RESULTS (for %s):
   %3d: passing tests
   %3d: total tests
 """ % (args.test_file, soft_fail_cnt, fail_cnt,
-        pass_cnt, test_cnt)
+       pass_cnt, test_cnt)
 log(results)
 
-debug("\n") # add some separate to debug log
+debug("\n")  # add some separate to debug log
 
 if fail_cnt > 0:
     sys.exit(1)
