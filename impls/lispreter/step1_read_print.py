@@ -1,7 +1,8 @@
-from printer import pr_str
-from reader import read_str
 import getopt
 import sys
+
+from printer import pr_str
+from reader import read_str
 
 
 def read(x):
