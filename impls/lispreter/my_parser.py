@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from mal_types import brackets, AstAndBracketType
+from mal_types import brackets, AstAndBracketType, Symbol
 
 pattern = re.compile(
     r'[\s,]*(~@|[\[\]{}()\'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}(\'"`, ;)]+)')
@@ -44,9 +44,21 @@ class MyParser:
         token = self.reader.next()
         if token in keywords_map.keys():
             return keywords_map[token]
+        elif re.match(r'^-?[0-9]+$', token):
+            return int(token)
+        elif re.match(r'^-?[0-9]\.[0-9]*$', token):
+            return float(token)
         elif token.isnumeric():
             return int(token)
-        return token
+        elif token.startswith('"'):
+            return self._parse_string(token)
+        return Symbol(token)
+
+    @staticmethod
+    def _parse_string(string):
+        if not string.endswith('"') or len(string) == 1 or not re.match(r'^"(?:\\.|[^\\"])*"$', string):
+            raise Exception(f'No matching closing double quotation for string {string[1:]}')
+        return string
 
     def validate_list_current_token(self):
         if self.reader.peek() is None:

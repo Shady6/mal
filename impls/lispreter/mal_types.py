@@ -1,6 +1,9 @@
 from collections import namedtuple
 from dataclasses import dataclass
 
+@dataclass
+class Symbol:
+    val: any
 
 @dataclass
 class MalBrackets:
