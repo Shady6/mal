@@ -1,9 +1,10 @@
-from collections import namedtuple
 from dataclasses import dataclass
+
 
 @dataclass
 class Symbol:
     val: any
+
 
 @dataclass
 class MalBrackets:
@@ -11,9 +12,23 @@ class MalBrackets:
     right_bracket: str
 
 
+class List(list): pass
+
+
+class Vector(list): pass
+
+
+class HashMap(list): pass
+
+
+list_types = [List, Vector, HashMap]
+
 regular_bracket = MalBrackets('(', ')')
 square_bracket = MalBrackets('[', ']')
 curly_bracket = MalBrackets('{', '}')
-brackets = [regular_bracket, square_bracket, curly_bracket]
 
-AstAndBracketType = namedtuple('AstAndBracketType', ['ast', 'bracket_type'])
+list_type_bracket_map = {
+    List.__name__: regular_bracket,
+    Vector.__name__: square_bracket,
+    HashMap.__name__: curly_bracket
+}

@@ -1,6 +1,6 @@
 from typing import List
 
-from my_parser import tokenize, MyParser
+from parser import tokenize, read_form
 
 
 class Reader:
@@ -19,10 +19,10 @@ class Reader:
             else self.tokens[self.position]
 
 
-def read_str(input):
-    tokens = tokenize(input)
+def read_str(_input):
+    tokens = tokenize(_input)
     reader = Reader(tokens)
     try:
-        return MyParser(reader).read_form()
-    except:
-        return ['EOF']
+        return read_form(reader)
+    except Exception as ex:
+        return [ex]
