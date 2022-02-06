@@ -34,7 +34,7 @@ def EVAL(ast, env):
 
 def eval_ast(ast, env):
     if isinstance(ast, Symbol):
-        return repl_env[ast.val]
+        return repl_env[ast]
     elif isinstance(ast, List):
         return List(map(lambda x: EVAL(x, env), ast))
     elif isinstance(ast, Vector):

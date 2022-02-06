@@ -55,13 +55,17 @@ def read_atom(reader):
     elif re.match(r'^-?[0-9]+$', token):
         return int(token)
     elif re.match(r'^-?[0-9]\.[0-9]*$', token):
-        return float(token)
+        return int(token)
     elif token.startswith('"'):
         return parse_string(token)
     return Symbol(token)
 
 
+def _unescape(s):
+    return s.replace('\\"', '"').replace('\\n', '\n')
+
+
 def parse_string(string):
     if not string.endswith('"') or len(string) == 1 or not re.match(r'^"(?:\\.|[^\\"])*"$', string):
         raise ParseError('unbalanced string')
-    return string
+    return _unescape(string[1:-1])

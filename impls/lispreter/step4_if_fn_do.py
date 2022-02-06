@@ -1,16 +1,12 @@
-import functools
-import operator
-
+from core import ns
 from env import Env
-from mal_types import Symbol, List, Vector, HashMap
+from mal_types import Symbol, List, Vector, HashMap, fn
 from printer import pr_str
 from reader import read_str
 
 repl_env = Env()
-repl_env.set('+', lambda *args: functools.reduce(operator.add, args))
-repl_env.set('-', lambda *args: functools.reduce(operator.sub, args))
-repl_env.set('*', lambda *args: functools.reduce(operator.mul, args))
-repl_env.set('/', lambda *args: functools.reduce(operator.truediv, args))
+for k, v in ns.items():
+    repl_env.set(k, v)
 
 
 def READ(str):
@@ -29,6 +25,19 @@ def EVAL(ast, env):
         for i in range(0, len(ast[1]), 2):
             let_env.set(ast[1][i], EVAL(ast[1][i + 1], let_env))
         return EVAL(ast[2], let_env)
+    elif ast[0] == 'do':
+        return eval_ast(ast[1:], env)[-1]
+    elif ast[0] == 'if':
+        cond = EVAL(ast[1], env)
+        if cond is None or cond is False:
+            if len(ast) > 3:
+                return EVAL(ast[3], env)
+            else:
+                return None
+        else:
+            return EVAL(ast[2], env)
+    elif ast[0] == 'fn*':
+        return fn(EVAL, ast[1], ast[2], env)
     else:
         f = eval_ast(ast, env)
         return f[0](*f[1:])
@@ -50,7 +59,7 @@ def PRINT(x):
     print(pr_str(x))
 
 
-def rep(x):
+def REP(x):
     PRINT(EVAL(READ(x), repl_env))
 
 
@@ -58,6 +67,6 @@ if __name__ == '__main__':
     while True:
         try:
             inp = input("user> ")
-            rep(inp)
+            REP(inp)
         except Exception as e:
             print(e)

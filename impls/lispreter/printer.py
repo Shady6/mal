@@ -1,20 +1,27 @@
 from mal_types import Symbol, List, Vector, HashMap
 
 
-def pr_str(ast, print_readably=False):
-    if ast is True:
+def _escape(s):
+    return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+
+
+def pr_str(res, print_readably=True):
+    if res is True:
         return 'true'
-    elif ast is False:
+    elif res is False:
         return 'false'
-    elif ast is None:
+    elif res is None:
         return 'nil'
-    elif isinstance(ast, Symbol):
-        return ast.val
-    elif isinstance(ast, List):
-        return '(' + " ".join(map(lambda x: pr_str(x), ast)) + ')'
-    elif isinstance(ast, Vector):
-        return '[' + " ".join(map(lambda x: pr_str(x), ast)) + ']'
-    elif isinstance(ast, HashMap):
-        return '{' + " ".join(k + " " + pr_str(v) for k, v in ast.items()) + '}'
-    return str(ast) if not print_readably \
-        else str(ast).encode().decode('unicode_escape')
+    elif isinstance(res, Symbol):
+        return res
+    elif isinstance(res, List):
+        return '(' + " ".join(map(lambda x: pr_str(x), res)) + ')'
+    elif isinstance(res, Vector):
+        return '[' + " ".join(map(lambda x: pr_str(x), res)) + ']'
+    elif isinstance(res, HashMap):
+        return '{' + " ".join(k + " " + pr_str(v) for k, v in res.items()) + '}'
+    elif isinstance(res, str):
+        if print_readably:
+            return '"' + _escape(res) + '"'
+        return res
+    return res.__str__()
