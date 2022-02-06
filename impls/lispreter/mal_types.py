@@ -5,6 +5,11 @@ class ParseError(Exception): pass
 
 
 @dataclass
+class HashMapKey:
+    val: str
+
+
+@dataclass
 class Symbol:
     val: any
 
@@ -21,7 +26,15 @@ class List(list): pass
 class Vector(list): pass
 
 
-class HashMap(list): pass
+class HashMap(dict): pass
+
+
+def _HashMap(_list):
+    hm = HashMap()
+    for i in range(0, len(_list), 2):
+        key = _list[i].val if isinstance(_list[i], HashMapKey) else _list[i]
+        hm[key] = _list[i + 1]
+    return hm
 
 
 list_types = [List, Vector, HashMap]

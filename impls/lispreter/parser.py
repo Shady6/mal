@@ -1,6 +1,7 @@
 import re
 
-from mal_types import HashMap, List, Symbol, regular_bracket, square_bracket, curly_bracket, Vector, ParseError
+from mal_types import List, Symbol, regular_bracket, square_bracket, curly_bracket, Vector, ParseError, \
+    HashMapKey, _HashMap
 
 pattern = re.compile(
     r'[\s,]*(~@|[\[\]{}()\'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}(\'"`, ;)]+)')
@@ -24,7 +25,8 @@ def read_form(reader):
     elif reader.peek() == '}':
         raise ParseError('Unexpected bracket: "}"')
     elif reader.peek() == '{':
-        return read_list(reader, curly_bracket, HashMap)
+        res = read_list(reader, curly_bracket, list)
+        return _HashMap(res)
 
     return read_atom(reader)
 
@@ -48,6 +50,8 @@ def read_atom(reader):
         return False
     elif token == 'nil':
         return None
+    elif token[0] == ':':
+        return HashMapKey(token)
     elif re.match(r'^-?[0-9]+$', token):
         return int(token)
     elif re.match(r'^-?[0-9]\.[0-9]*$', token):

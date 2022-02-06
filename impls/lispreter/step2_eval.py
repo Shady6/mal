@@ -1,9 +1,7 @@
 import functools
-import getopt
 import operator
-import sys
 
-from mal_types import Symbol, ParseError, List, Vector
+from mal_types import Symbol, ParseError, List, Vector, HashMap
 from printer import pr_str
 from reader import read_str
 
@@ -41,6 +39,8 @@ def eval_ast(ast, env):
         return List(map(lambda x: EVAL(x, env), ast))
     elif isinstance(ast, Vector):
         return Vector(map(lambda x: EVAL(x, env), ast))
+    elif isinstance(ast, HashMap):
+        return HashMap(((k, EVAL(v, env)) for k, v in ast.items()))
     return ast
 
 
@@ -53,14 +53,6 @@ def rep(x):
 
 
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'd')
-    isDebug = True if '-d' in [x[0] for x in opts] else False
-
-    if isDebug:
-        inp = '( + 2 (* 3 4) ) '
+    while True:
+        inp = input("user> ")
         rep(inp)
-
-    else:
-        while True:
-            inp = input("user> ")
-            rep(inp)
