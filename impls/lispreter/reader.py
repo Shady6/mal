@@ -21,8 +21,6 @@ class Reader:
 def read_str(_input):
     tokens = tokenize(_input)
     reader = Reader(tokens)
-    try:
-        return read_form(reader)
-    except ParseError as ex:
-        return ex
+    return read_form(reader)
+
 
