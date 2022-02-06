@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
 
+class ParseError(Exception): pass
+
+
 @dataclass
 class Symbol:
     val: any

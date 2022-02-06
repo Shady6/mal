@@ -1,6 +1,6 @@
 import re
 
-from mal_types import HashMap, List, Symbol, regular_bracket, square_bracket, curly_bracket, Vector
+from mal_types import HashMap, List, Symbol, regular_bracket, square_bracket, curly_bracket, Vector, ParseError
 
 pattern = re.compile(
     r'[\s,]*(~@|[\[\]{}()\'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}(\'"`, ;)]+)')
@@ -14,15 +14,15 @@ def read_form(reader):
     if reader.peek() == ';':
         return None
     elif reader.peek() == ')':
-        raise Exception('Unexpected bracket: ")"')
+        raise ParseError('Unexpected bracket: ")"')
     elif reader.peek() == '(':
         return read_list(reader, regular_bracket, List)
     elif reader.peek() == ']':
-        raise Exception('Unexpected bracket: "]"')
+        raise ParseError('Unexpected bracket: "]"')
     elif reader.peek() == '[':
         return read_list(reader, square_bracket, Vector)
     elif reader.peek() == '}':
-        raise Exception('Unexpected bracket: "}"')
+        raise ParseError('Unexpected bracket: "}"')
     elif reader.peek() == '{':
         return read_list(reader, curly_bracket, HashMap)
 
@@ -34,7 +34,7 @@ def read_list(reader, bracket_type, list_type):
     reader.next()
     while reader.peek() != bracket_type.right_bracket:
         if reader.peek() is None:
-            raise Exception('EOF')
+            raise ParseError('EOF')
         ast.append(read_form(reader))
     reader.next()
     return ast
@@ -59,5 +59,5 @@ def read_atom(reader):
 
 def parse_string(string):
     if not string.endswith('"') or len(string) == 1 or not re.match(r'^"(?:\\.|[^\\"])*"$', string):
-        raise Exception(f'No matching closing double quotation for string {string[1:]}')
+        raise ParseError('unbalanced string')
     return string

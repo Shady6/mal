@@ -1,10 +1,9 @@
-from typing import List
-
+from mal_types import List, ParseError
 from parser import tokenize, read_form
 
 
 class Reader:
-    def __init__(self, tokens: List[str]):
+    def __init__(self, tokens):
         self.tokens = tokens
         self.position = 0
 
@@ -24,5 +23,6 @@ def read_str(_input):
     reader = Reader(tokens)
     try:
         return read_form(reader)
-    except Exception as ex:
-        return [ex]
+    except ParseError as ex:
+        return ex
+

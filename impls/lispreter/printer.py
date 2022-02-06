@@ -1,8 +1,8 @@
-from mal_types import Symbol, list_types, list_type_bracket_map
+from mal_types import Symbol, list_type_bracket_map
 
 
 def pr_str(element, print_readably=False):
-    if type(element).__name__ in map(lambda x: x.__name__, list_types):
+    if isinstance(element, list):
         return pr_list(element)
     else:
         return pr_atom(element, print_readably)
@@ -15,7 +15,7 @@ def pr_atom(atom, print_readably):
         return 'false'
     elif atom is None:
         return 'nil'
-    elif type(atom).__name__ == Symbol.__name__:
+    elif isinstance(atom, Symbol):
         return atom.val
     return str(atom) if not print_readably \
         else str(atom).encode().decode('unicode_escape')
