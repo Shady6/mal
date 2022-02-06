@@ -65,4 +65,8 @@ def fn(EVAL, params, ast, env):
         fnEnv = Env(env, params, List(args))
         return EVAL(ast, fnEnv)
 
+    _fn.__ast__ = ast
+    _fn.__params__ = params
+    _fn.__env__ = lambda args: Env(env, params, args)
+
     return _fn
