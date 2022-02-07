@@ -7,8 +7,7 @@ class ParseError(Exception): pass
 
 
 @dataclass
-class HashMapKey:
-    val: str
+class HashMapKey(str): pass
 
 
 class Symbol(str): pass
@@ -42,7 +41,7 @@ class HashMap(dict): pass
 def _HashMap(_list):
     hm = HashMap()
     for i in range(0, len(_list), 2):
-        key = _list[i] if isinstance(_list[i], HashMapKey) else _list[i]
+        key = _list[i] if isinstance(_list[i], HashMapKey) else f'"{_list[i]}"'
         hm[key] = _list[i + 1]
     return hm
 

@@ -14,6 +14,18 @@ def tokenize(_input):
 def read_form(reader):
     if reader.peek() == ';':
         return None
+    elif reader.peek() == "'":
+        reader.next()
+        return List([Symbol('quote'), read_form(reader)])
+    elif reader.peek() == "`":
+        reader.next()
+        return List([Symbol('quasiquote'), read_form(reader)])
+    elif reader.peek() == "~":
+        reader.next()
+        return List([Symbol('unquote'), read_form(reader)])
+    elif reader.peek() == "~@":
+        reader.next()
+        return List([Symbol('splice-unquote'), read_form(reader)])
     elif reader.peek() == ')':
         raise ParseError('Unexpected bracket: ")"')
     elif reader.peek() == '(':
