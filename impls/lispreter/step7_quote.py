@@ -75,7 +75,7 @@ def eval_ast(ast, env):
 
 def quasiquote(ast):
     if isinstance(ast, List):
-        if ast[0] == 'unquote':
+        if len(ast) == 2 and ast[0] == 'unquote':
             return ast[1]
         return qq_acc(ast)
     elif isinstance(ast, HashMap) or isinstance(ast, Symbol):
