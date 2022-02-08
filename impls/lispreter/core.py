@@ -37,6 +37,7 @@ ns = \
         '*': lambda *args: functools.reduce(operator.mul, args),
         '/': lambda *args: functools.reduce(operator.floordiv, args),
         'not': lambda x: True if x is None or x is False else False,
+        'and': lambda *args: functools.reduce(operator.and_, args),
 
         'list': lambda *args: List(args),
         'list?': lambda x: isinstance(x, List),
@@ -44,5 +45,7 @@ ns = \
         'concat': lambda *args: List(chain(*args)),
         'vec': lambda x: Vector(x),
         'empty?': lambda x: len(x) == 0,
-        'count': lambda x: 0 if x is None else len(x)
+        'count': lambda x: 0 if x is None else len(x),
+        'at': lambda seq,x: seq[x],
+        'rest': lambda seq,x: seq[x:]
     }

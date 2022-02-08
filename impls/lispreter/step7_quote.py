@@ -36,7 +36,8 @@ def EVAL(ast, env):
         elif ast[0] == 'quasiquoteexpand':
             return quasiquote(ast[1])
         elif ast[0] == 'do':
-            ast = eval_ast(ast[1:-1], env)[-1]
+            eval_ast(ast[1:-1], env)
+            ast = ast[-1]
             # TCO
         elif ast[0] == 'if':
             cond = EVAL(ast[1], env)
